@@ -36,47 +36,80 @@ class Table
     results.map { |result| self.new(result) }
   end
 
-  def save
+  def self.where(opt_hash)
+
+    where_string = self.make_where_string(opt_hash.keys)
+
+    #p where_string
+
+    results = QuestionsDatabase.instance.execute(<<-SQL, opt_hash)
+      SELECT
+        *
+      FROM
+        #{self::TABLE_NAME}
+      WHERE
+        #{where_string}
+    SQL
+
+    results.map { |result| self.new(result) }
+  end
+
+  def self.make_where_string(var)
+    var.map do |var|
+      "#{var} = :#{var}"
+    end.join(" AND ")
+  end
+
+  def get_instance_variables_as_sym
     instance_variables = self.instance_variables.map do |var|
       var.to_s[1..-1].to_sym
     end.reject{ |var| var == :id }
+  end
 
-    set_string = instance_variables.map do |var|
+  def make_set_string(var)
+    var.map do |var|
       "#{var} = :#{var}"
     end.join(", ")
+  end
+
+  def save
+    instance_variables = get_instance_variables_as_sym
+    set_string = make_set_string(instance_variables)
 
     actual_values = Hash.new
-
     instance_variables.each do |var|
       actual_values[var] = self.send(var)
     end
 
-    var_list = instance_variables.map do |var|
-      var.to_s
-    end.join(", ")
-
-    val_list = instance_variables.map do |var|
-      ":" + var.to_s
-    end.join(", ")
+    var_list = instance_variables.map { |var| var.to_s }.join(", ")
+    val_list = instance_variables.map { |var| ":" + var.to_s }.join(", ")
 
     if self.id
-      QuestionsDatabase.instance.execute(<<-SQL, actual_values)
-        UPDATE
-          #{self.class::TABLE_NAME}
-        SET
-          #{set_string}
-        WHERE
-          id = #{self.id}
-      SQL
+      update(actual_values, set_string)
     else
-      QuestionsDatabase.instance.execute(<<-SQL, actual_values)
-        INSERT INTO
-          #{self.class::TABLE_NAME}(#{var_list})
-        VALUES
-          (#{val_list})
-      SQL
-
-      self.id = QuestionsDatabase.instance.last_insert_row_id
+      insert(actual_values, var_list, val_list)
     end
+  end
+
+  def update(values, set_string)
+    QuestionsDatabase.instance.execute(<<-SQL, values_hash)
+      UPDATE
+        #{self.class::TABLE_NAME}
+      SET
+        #{set_string}
+      WHERE
+        id = #{self.id}
+    SQL
+  end
+
+  def insert(values_hash, variables, values)
+    QuestionsDatabase.instance.execute(<<-SQL, values_hash)
+      INSERT INTO
+        #{self.class::TABLE_NAME}(#{variables})
+      VALUES
+        (#{values})
+    SQL
+
+    self.id = QuestionsDatabase.instance.last_insert_row_id
   end
 end
