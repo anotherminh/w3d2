@@ -1,4 +1,5 @@
 require_relative 'questions_db'
+require_relative 'question'
 
 class QuestionFollow < Table
   TABLE_NAME = 'question_follows'
@@ -35,6 +36,26 @@ class QuestionFollow < Table
     SQL
 
     followed_questions.map do |question|
+      Question.new(question)
+    end
+  end
+
+  def self.most_followed_questions(n)
+    questions = QuestionsDatabase.instance.execute(<<-SQL, n)
+      SELECT
+        questions.*
+      FROM
+        questions
+      JOIN
+        question_follows ON questions.id = question_follows.question_id
+      GROUP BY
+        questions.id
+      ORDER BY
+        COUNT(*) DESC
+      LIMIT ?
+    SQL
+
+    questions.map do |question|
       Question.new(question)
     end
   end

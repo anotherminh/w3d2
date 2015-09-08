@@ -52,7 +52,8 @@ INSERT INTO
 VALUES
   ('How do I SQL?', 'SQL is annoying and boring', 1),
   ('How many coins can you fit into the empire state building?', 'I dunno. Help.', 2),
-  ('How do I get a job', 'I need money', 3);
+  ('How do I get a job', 'I need money', 3),
+  ('Can you speak Chinese?', 'I do', 1);
 
 INSERT INTO
   question_follows(question_id, user_id)

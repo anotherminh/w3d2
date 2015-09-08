@@ -24,4 +24,15 @@ class Table
 
     self.new(results)
   end
+
+  def self.all
+    results = QuestionsDatabase.instance.execute(<<-SQL)
+      SELECT
+        *
+      FROM
+        #{self::TABLE_NAME}
+    SQL
+
+    results.map { |result| self.new(result) }
+  end
 end

@@ -20,6 +20,10 @@ class User < Table
     end
   end
 
+  def liked_questions
+    QuestionLike.liked_questions_for_user_id(self.id)
+  end
+
   def initialize(attributes)
     @id = attributes['id']
     @fname = attributes['fname']
@@ -36,5 +40,41 @@ class User < Table
 
   def followed_questions
     QuestionFollow.followed_questions_for_user_id(self.id)
+  end
+
+  def average_karma
+     QuestionsDatabase.instance.execute(<<-SQL).first['karma']
+      SELECT
+        (CAST((COUNT(question_likes.id)) AS FLOAT)) / COUNT(DISTINCT(questions.id)) AS karma
+      FROM
+        questions
+      LEFT OUTER JOIN
+        question_likes ON questions.id = question_likes.question_id
+      WHERE
+        questions.author_id = #{self.id}
+     SQL
+  end
+
+  def save
+    if self.id
+      QuestionsDatabase.instance.execute(<<-SQL, first: fname, last: lname, input_id: id)
+        UPDATE
+          users
+        SET
+          fname = :first
+          lname = :last
+        WHERE
+          id = :input_id
+      SQL
+    else
+      QuestionsDatabase.instance.execute(<<-SQL, first: fname, last: lname)
+        INSERT INTO
+          users(fname, lname)
+        VALUES
+          (:first, :last)
+      SQL
+
+      self.id = QuestionsDatabase.instance.last_insert_row_id
+    end
   end
 end
