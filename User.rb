@@ -55,26 +55,5 @@ class User < Table
      SQL
   end
 
-  def save
-    if self.id
-      QuestionsDatabase.instance.execute(<<-SQL, first: fname, last: lname, input_id: id)
-        UPDATE
-          users
-        SET
-          fname = :first
-          lname = :last
-        WHERE
-          id = :input_id
-      SQL
-    else
-      QuestionsDatabase.instance.execute(<<-SQL, first: fname, last: lname)
-        INSERT INTO
-          users(fname, lname)
-        VALUES
-          (:first, :last)
-      SQL
-
-      self.id = QuestionsDatabase.instance.last_insert_row_id
-    end
-  end
+  
 end
