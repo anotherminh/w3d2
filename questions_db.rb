@@ -36,13 +36,20 @@ class Table
     results.map { |result| self.new(result) }
   end
 
-  def self.where(opt_hash)
+  def self.where(input)
 
+    if input.is_a?(Hash)
+      results = self.hash_where(input)
+    else
+      results = self.string_where(input)
+    end
+    
+    results.map { |result| self.new(result) }
+  end
+
+  def self.hash_where(opt_hash)
     where_string = self.make_where_string(opt_hash.keys)
-
-    #p where_string
-
-    results = QuestionsDatabase.instance.execute(<<-SQL, opt_hash)
+    results = QuestionsDatabase.instance.execute(<<-SQL, input)
       SELECT
         *
       FROM
@@ -51,7 +58,17 @@ class Table
         #{where_string}
     SQL
 
-    results.map { |result| self.new(result) }
+  end
+
+  def self.string_where(string)
+    results = QuestionsDatabase.instance.execute(<<-SQL)
+      SELECT
+        *
+      FROM
+        #{self::TABLE_NAME}
+      WHERE
+        #{string}
+    SQL
   end
 
   def self.make_where_string(var)
