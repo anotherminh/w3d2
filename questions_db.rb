@@ -60,6 +60,25 @@ class Table
     end.join(" AND ")
   end
 
+  def self.parse_method_name(name)
+    without_find_by = name.to_s.chars.drop(8).join
+    columns = without_find_by.split('_and_')
+  end
+
+  def self.method_missing(symbol, *args)
+    p symbol
+    raise 'method missing' unless symbol.to_s.start_with?('find_by_')
+    columns = self.parse_method_name(symbol)
+
+    opt_hash = Hash.new
+
+    columns.each_with_index do |col, idx|
+      opt_hash[col] = args[idx]
+    end
+
+    self.where(opt_hash)
+  end
+
   def get_instance_variables_as_sym
     instance_variables = self.instance_variables.map do |var|
       var.to_s[1..-1].to_sym
