@@ -7,7 +7,7 @@ class QuestionLike < Table
   attr_accessor :id, :question_id, :user_id
 
   def self.likers_for_question_id(question_id)
-    likers = QuestionsDatabase.instance.execute(<<-SQL, question_id)
+    likers = QuestionsDatabase.execute(<<-SQL, question_id)
       SELECT
         users.*
       FROM
@@ -26,7 +26,7 @@ class QuestionLike < Table
   end
 
   def self.num_likes_for_question_id(question_id)
-    QuestionsDatabase.instance.execute(<<-SQL, question_id).first['count']
+    QuestionsDatabase.instance.get_first_value(<<-SQL, question_id)
       SELECT
         COUNT(*) as count
       FROM
@@ -43,7 +43,7 @@ class QuestionLike < Table
   end
 
   def self.liked_questions_for_user_id(user_id)
-    questions = QuestionsDatabase.instance.execute(<<-SQL, user_id)
+    questions = QuestionsDatabase.execute(<<-SQL, user_id)
       SELECT
         questions.*
       FROM
@@ -60,7 +60,7 @@ class QuestionLike < Table
   end
 
   def self.most_liked_questions(n)
-    questions = QuestionsDatabase.instance.execute(<<-SQL, n)
+    questions = QuestionsDatabase.execute(<<-SQL, n)
       SELECT
         questions.*
       FROM

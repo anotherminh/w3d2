@@ -7,7 +7,7 @@ class Question < Table
   attr_accessor :id, :title, :body, :author_id
 
   def self.find_by_author_id(author_id)
-    results = QuestionsDatabase.instance.execute(<<-SQL, author_id)
+    results = QuestionsDatabase.execute(<<-SQL, author_id)
       SELECT
         *
       FROM
@@ -38,6 +38,7 @@ class Question < Table
   end
 
   def initialize(attributes)
+    # @id, @title = attributes.values_at('id', 'title')
     @id = attributes['id']
     @title = attributes['title']
     @body = attributes['body']

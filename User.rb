@@ -6,7 +6,7 @@ class User < Table
   attr_accessor :id, :fname, :lname
 
   def self.find_by_name(fname, lname)
-    results = QuestionsDatabase.instance.execute(<<-SQL, fname, lname)
+    results = QuestionsDatabase.execute(<<-SQL, fname, lname)
       SELECT
         *
       FROM
@@ -43,7 +43,7 @@ class User < Table
   end
 
   def average_karma
-     QuestionsDatabase.instance.execute(<<-SQL).first['karma']
+     QuestionsDatabase.instance.get_first_value(<<-SQL)
       SELECT
         (CAST((COUNT(question_likes.id)) AS FLOAT)) / COUNT(DISTINCT(questions.id)) AS karma
       FROM
@@ -55,5 +55,5 @@ class User < Table
      SQL
   end
 
-  
+
 end

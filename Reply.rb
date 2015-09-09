@@ -6,7 +6,7 @@ class Reply < Table
   attr_accessor :id, :question_id, :user_id, :parent_id, :body
 
   def self.find_by_user_id(user_id)
-    results = QuestionsDatabase.instance.execute(<<-SQL, user_id)
+    results = QuestionsDatabase.execute(<<-SQL, user_id)
       SELECT
         *
       FROM
@@ -21,7 +21,7 @@ class Reply < Table
   end
 
   def self.find_by_question_id(question_id)
-    results = QuestionsDatabase.instance.execute(<<-SQL, question_id)
+    results = QuestionsDatabase.execute(<<-SQL, question_id)
       SELECT
         *
       FROM
@@ -56,7 +56,7 @@ class Reply < Table
   end
 
   def child_replies
-    results = QuestionsDatabase.instance.execute(<<-SQL)
+    results = QuestionsDatabase.execute(<<-SQL)
       SELECT
         *
       FROM

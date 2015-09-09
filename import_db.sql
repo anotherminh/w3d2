@@ -66,7 +66,7 @@ VALUES
 INSERT INTO
   replies(question_id, user_id, parent_id, body)
 VALUES
-  (3, 1, null, 'Go to App Academy'),
+  (3, 1, NULL, 'Go to App Academy'),
   (3, 2, 1, 'Go to Hack Reactor');
 
 INSERT INTO

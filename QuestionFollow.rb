@@ -7,7 +7,7 @@ class QuestionFollow < Table
   attr_accessor :id, :user_id, :question_id
 
   def self.followers_for_question_id(question_id)
-    users_following = QuestionsDatabase.instance.execute(<<-SQL, question_id)
+    users_following = QuestionsDatabase.execute(<<-SQL, question_id)
       SELECT
         users.*
       FROM
@@ -24,7 +24,7 @@ class QuestionFollow < Table
   end
 
   def self.followed_questions_for_user_id(user_id)
-    followed_questions = QuestionsDatabase.instance.execute(<<-SQL, user_id)
+    followed_questions = QuestionsDatabase.execute(<<-SQL, user_id)
       SELECT
         questions.*
       FROM
@@ -41,7 +41,7 @@ class QuestionFollow < Table
   end
 
   def self.most_followed_questions(n)
-    questions = QuestionsDatabase.instance.execute(<<-SQL, n)
+    questions = QuestionsDatabase.execute(<<-SQL, n)
       SELECT
         questions.*
       FROM

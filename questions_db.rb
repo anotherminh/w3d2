@@ -4,6 +4,10 @@ require 'sqlite3'
 class QuestionsDatabase < SQLite3::Database
   include Singleton
 
+  def self.execute(*args)
+    QuestionsDatabase.instance.execute(*args)
+  end
+
   def initialize
     super('questions.db')
     self.results_as_hash = true
@@ -13,7 +17,7 @@ end
 
 class Table
   def self.find_by_id(id)
-    results = QuestionsDatabase.instance.execute(<<-SQL, id).first
+    results = QuestionsDatabase.execute(<<-SQL, id).first
       SELECT
         *
       FROM
@@ -26,7 +30,7 @@ class Table
   end
 
   def self.all
-    results = QuestionsDatabase.instance.execute(<<-SQL)
+    results = QuestionsDatabase.execute(<<-SQL)
       SELECT
         *
       FROM
@@ -43,13 +47,13 @@ class Table
     else
       results = self.string_where(input)
     end
-    
+
     results.map { |result| self.new(result) }
   end
 
   def self.hash_where(opt_hash)
     where_string = self.make_where_string(opt_hash.keys)
-    results = QuestionsDatabase.instance.execute(<<-SQL, input)
+    results = QuestionsDatabase.execute(<<-SQL, input)
       SELECT
         *
       FROM
@@ -61,7 +65,7 @@ class Table
   end
 
   def self.string_where(string)
-    results = QuestionsDatabase.instance.execute(<<-SQL)
+    results = QuestionsDatabase.execute(<<-SQL)
       SELECT
         *
       FROM
@@ -83,7 +87,6 @@ class Table
   end
 
   def self.method_missing(symbol, *args)
-    p symbol
     raise 'method missing' unless symbol.to_s.start_with?('find_by_')
     columns = self.parse_method_name(symbol)
 
@@ -128,7 +131,7 @@ class Table
   end
 
   def update(values, set_string)
-    QuestionsDatabase.instance.execute(<<-SQL, values_hash)
+    QuestionsDatabase.execute(<<-SQL, values_hash)
       UPDATE
         #{self.class::TABLE_NAME}
       SET
@@ -139,7 +142,7 @@ class Table
   end
 
   def insert(values_hash, variables, values)
-    QuestionsDatabase.instance.execute(<<-SQL, values_hash)
+    QuestionsDatabase.execute(<<-SQL, values_hash)
       INSERT INTO
         #{self.class::TABLE_NAME}(#{variables})
       VALUES
